@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha del equipo</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        img { width: 100%; max-width: 300px; border-radius: 10px; margin-top: 15px; border: 2px solid #2c3e50; }
+        .btn { display: inline-block; margin-top: 20px; padding: 10px; background: #2c3e50; color: white; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔍 Detalle del equipo</h1>
+        <p><strong>Nombre:</strong> {{ equipo.nombre }}</p>
+        <p><strong>S/N:</strong> {{ equipo.serie }}</p>
+        
+        <p><strong>Estado:</strong> Asignado a {{ equipo.responsable.nombre if equipo.responsable else 'Stock' }}</p>
+        
+        {% if equipo.foto_serie %}
+            <h3>Foto del Serial/Producto:</h3>
+            <img src="{{ url_for('static', filename='uploads/' + equipo.foto_serie) }}">
+        {% else %}
+            <p style="color: grey;">(Sin foto registrada)</p>
+        {% endif %}
+    </div>
+    <a href="javascript:history.back()" class="btn">Volver</a>
+</body>
+</html>

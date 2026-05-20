@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Equipo</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; padding: 20px; }
+        .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        .btn-cancel { display: block; text-align: center; margin-top: 15px; color: #7f8c8d; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h3>✏️ Editar Información</h3>
+        <form method="POST">
+            <label>Nombre del Equipo:</label>
+            <input type="text" name="nombre" value="{{ eq.nombre }}" required>
+            
+            <label>Número de Serie:</label>
+            <input type="text" name="serie" value="{{ eq.serie }}">
+            
+            <button type="submit" style="background-color: #800020 !important; color: white !important; border: none !important; padding: 12px !important; width: 100% !important; border-radius: 4px !important; font-size: 16px !important; cursor: pointer !important; font-weight: bold !important;">
+            Guardar Cambios</button>
+        </form>
+        <a href="/" class="btn-cancel">Volver sin cambios</a>
+    </div>
+</body>
+</html>
