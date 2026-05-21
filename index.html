@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Control de Equipos Pro</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: #f4f4f9; padding-bottom: 50px; }
+        .header { background-color: #2c3e50; color: white; padding: 15px; text-align: center; font-weight: bold; }
+        .container { width: 95%; max-width: 600px; margin: 20px auto; }
+        .box { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
+        .btn-green { background-color: #27ae60; color: white; border: none; font-weight: bold; cursor: pointer; }
+        .btn-blue { background-color: #3498db; color: white; border: none; font-weight: bold; text-decoration: none; display: block; text-align: center; }
+        .equipo-item { background: #f9f9f9; padding: 10px; border: 1px solid #ddd; margin-top: 10px; border-radius: 4px; position: relative; }
+        .btn-quitar { color: #e74c3c; text-decoration: none; font-weight: bold; font-size: 0.8em; display: block; margin-top: 5px; }
+        hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <img src="{{ url_for('static', filename='logo1.png') }}" style="position: fixed; top: 5%; left: 0.5px; width: 640px; opacity: 0.40; z-index: -1; pointer-events: none;">
+    <div class="header">CONTROL DE EQUIPAMIENTO DE ICOCERT</div>
+
+<div class="container">
+    <div class="box">
+        <h3>1. Registrar Colaborador</h3>
+        <form action="https://control-de-equipamiento.onrender.com/agregar_colaborador" method="POST">
+            <input type="text" name="nombre" placeholder="Nombre completo" required>
+            <input type="text" name="area" placeholder="Área / Oficina">
+            <input type="text" name="dni" placeholder="Número de DNI"> 
+            <button type="submit" style="background-color: #800020 !important; color: white !important; border: none !important; padding: 12px !important; width: 100% !important; border-radius: 4px !important; font-size: 16px !important; cursor: pointer !important; font-weight: bold !important;">
+            Guardar Colaborador</button>
+        </form>
+        
+        <hr>
+
+        <h3>2. Registrar Equipo Nuevo</h3>
+        <form action="https://control-de-equipamiento.onrender.com/agregar_equipo" method="POST" enctype="multipart/form-data">
+            <input type="text" name="nombre" placeholder="Ej: Laptop HP, Mouse..." required>
+            <input type="text" name="serie" placeholder="Número de Serie">
+            <label style="font-size: 0.8em; color: #800020;">Foto del Serial (Opcional):</label>
+            <input type="file" name="foto" accept="image/*">
+            <button type="submit" style="background-color: #800020 !important; color: white !important; border: none !important; padding: 12px !important; width: 100% !important; border-radius: 4px !important; font-size: 16px !important; cursor: pointer !important; font-weight: bold !important;">
+            Guardar Equipo</button>
+        </form>
+    </div>
+
+    <div class="box">
+        <h3>3. Asignar Equipo</h3>
+        <form action="/asignar_equipo" method="POST">
+            <label>¿A quién?</label>
+            <select name="colaborador_id">
+                {% for col in colaboradores %}
+                <option value="{{ col.id }}">{{ col.nombre }}</option>
+                {% endfor %}
+            </select>
+            <label>¿Qué equipo?</label>
+            <select name="equipo_id">
+                {% for eq in equipos_libres %}
+                <option value="{{ eq.id }}">{{ eq.nombre }} - {{ eq.serie }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" style="background-color: #800020 !important; color: white !important; border: none !important; padding: 12px !important; width: 100% !important; border-radius: 4px !important; font-size: 16px !important; cursor: pointer !important; font-weight: bold !important;">
+            REALIZAR ENTREGA</button>
+        </form>
+    </div>
+
+    <h3>Inventario por Persona</h3>
+    {% for col in colaboradores %}
+    <div class="box" style="position: relative;">
+        <strong>{{ col.nombre }}</strong> <small>({{ col.area }})</small>
+        <a href="/colaborador/{{ col.id }}/pdf" style="background-color: #800020 !important; color: white !important; border: none !important; padding: 10px !important; margin-top: 10px !important; font-size: 0.9em !important; text-decoration: none !important; display: block !important; text-align: center !important; border-radius: 4px !important; font-weight: bold !important; width: 100% !important;">Generar Acta PDF</a>
+
+        {% if col.equipos|length == 0 %}
+        <form action="https://control-de-equipamiento.onrender.com/eliminar_colaborador/{{ col.id }}" method="POST" style="position: absolute; top: 12px; right: 15px; margin: 0;">
+            <button type="submit" onclick="return confirm('¿Seguro que deseas eliminar a este colaborador?');" style="background: none; border: none; color: #e74c3c; font-weight: bold; cursor: pointer; font-size: 13px;">
+                ❌ Eliminar
+            </button>
+        </form>
+        {% endif %}
+        
+        {% for eq in col.equipos %}
+        <div class="equipo-item">
+            <span>{{ eq.nombre }} (S/N: {{ eq.serie }})</span>
+            <a href="/equipo/{{ eq.id }}/qr" target="_blank" style="font-size: 0.8em; color: #3498db;">[Ver QR]</a>
+            <a href="/editar_equipo/{{ eq.id }}" style="font-size: 0.8em; color: #f39c12; margin-left: 10px;">[ ✏️ Editar ]</a>
+            <a href="/desvincular/{{ eq.id }}" class="btn-quitar" onclick="return confirm('¿Seguro que quieres devolver este equipo al inventario?')">❌ Devolver equipo</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>
