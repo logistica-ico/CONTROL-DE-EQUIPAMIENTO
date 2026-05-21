@@ -12,6 +12,11 @@ from datetime import datetime
 from reportlab.lib.utils import simpleSplit
 
 app = Flask(__name__)
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['REMEMBER_COOKIE_SAMESITE'] = 'None'
+app.config['REMEMBER_COOKIE_SECURE'] = True
+CORS(app)
 print("====================================")
 print("¡ATENCIÓN! EL ARCHIVO REAL QUE ESTÁ CORRIENDO ES:")
 print(os.path.abspath(__file__))
@@ -274,14 +279,24 @@ def eliminar_colaborador(colaborador_id):
 @app.route('/equipo/<int:equipo_id>/qr')
 @login_required
 def generar_qr(equipo_id):
-    mi_ip_real = "192.168.100.9"
-    url = f"http://{mi_ip_real}:5000/ver/{equipo_id}"
+    # Cambiamos la IP vieja por tu dominio definitivo de Firebase
+    url = f"https://control-de-equipamiento.web.app/ver/{equipo_id}"
     img = qrcode.make(url)
     buf = BytesIO()
     img.save(buf)
     buf.seek(0)
     return send_file(buf, mimetype='image/png')
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['REMEMBER_COOKIE_SAMESITE'] = 'None'
+app.config['REMEMBER_COOKIE_SECURE'] = True
 
+@app.after_request
+def add_security_headers(response):
+    response.headers["Content-Security-Policy"] = "frame-ancestors 'self' https://control-de-equipamiento.web.app;"
+    if "X-Frame-Options" in response.headers:
+        del response.headers["X-Frame-Options"]
+    return response
 # # ESTA SIEMPRE DEBE SER LA ÚLTIMA LÍNEA
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
